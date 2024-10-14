@@ -6,6 +6,7 @@ from utils import Metadata, metadata_path, data_path
 
 wiki_wiki = wikipediaapi.Wikipedia("Jaseci Lab University of Michigan", "en")
 
+start = "Conflict-driven_clause_learning"
 
 def prep() -> Metadata:
     if not data_path.exists():
@@ -15,7 +16,7 @@ def prep() -> Metadata:
             parsed = json.load(file)
             return Metadata.model_validate(parsed)
     else:
-        return Metadata(queue=["University_of_Michigan"], visited=[], link_data={})
+        return Metadata(queue=[start], visited=[], link_data={})
 
 
 def fetch(name: str):
@@ -35,12 +36,10 @@ def expand(
     new_data = {}
     while len(frontier) > 0:
         name = frontier.pop(0)
-        if name in visited:
-            continue
         print(f"Working on {name}")
-        visited.append(name)
         links = fetch(name)
-        links_filtered = [link for link in links if ":" not in link]
+        links_filtered = [link for link in links if ":" not in link and link not in visited][:10]
+        visited.extend(links_filtered)
         new_data[name] = links_filtered
         frontier.extend(links_filtered)
         # print("FRONTIER", frontier)
