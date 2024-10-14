@@ -11,6 +11,7 @@ edge HyperLink {
 walker WikiWalker {
   can calculate with Page entry {
     print("calculating", here.title);
+    visit [-:HyperLink:->][0];
   }
 }
 
