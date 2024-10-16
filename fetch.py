@@ -25,6 +25,11 @@ def fetch(name: str):
     return list(page.links)
 
 
+def fetch_text(name: str):
+    page = wiki_wiki.page(name)
+    return page.text
+
+
 def post(metadata: Metadata):
     with open(metadata_path, "w") as file:
         file.write(metadata.model_dump_json())

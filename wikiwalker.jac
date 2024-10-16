@@ -1,4 +1,7 @@
 import:py from wikiwalker {pre}
+import:py from fetch {fetch_text}
+import:py from lstm {initial}
+import:py from lstm {calculate}
 
 node Page {
   has title: str;
@@ -9,10 +12,12 @@ edge HyperLink {
 }
 
 walker WikiWalker {
+  has accumulated: torch.tensor;
   can calculate with Page entry {
     print("calculating", here.title);
     if len([-:HyperLink:->]) > 0{
-
+      text = fetch_text(here.title);
+      self.accumulated = calculate(self.accumulated, text, 0.5);
       visit [-:HyperLink:->][0];
     }
   }
@@ -43,5 +48,6 @@ with entry {
       cur +:HyperLink:+> maxnode;
     }
   }
-  wlk_obj = head spawn WikiWalker();
+  wlk_obj = head spawn WikiWalker(accumulated=initial());
+  print(wlk_obj.accumulated);
 }

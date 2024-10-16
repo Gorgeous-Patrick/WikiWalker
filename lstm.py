@@ -5,6 +5,9 @@ from torch.nn.utils.rnn import pad_sequence
 
 import nltk
 
+def initial():
+    return torch.tensor([0] * 1000)
+
 
 def calculate(prev, text, damping_factor=0.5):
     nltk.download("punkt_tab")  # Download necessary tokenizer data
