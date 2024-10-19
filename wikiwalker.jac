@@ -16,7 +16,6 @@ walker WikiWalker {
   has accumulated: torch.tensor;
   has seq: list[str];
   can calculate with Page entry {
-    print("calculating", here.title);
     self.seq.append(here.title);
     text = fetch_text(here.title);
     self.accumulated = calculate(self.accumulated, text, 0.5);
