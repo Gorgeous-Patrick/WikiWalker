@@ -21,7 +21,7 @@ walker WikiWalker {
     self.accumulated = calculate(self.accumulated, text, 0.5);
     possible = [-:HyperLink:->] + [<-:HyperLink:-];
     if len(possible) > 0 {
-      if len(self.seq) < 5{
+      if len(self.seq) < 10{
         next = choice(possible);
         visit next;
       }
@@ -54,7 +54,7 @@ with entry {
 
     }
   }
-  query = "Apache Software Foundation";
+  query = choice(list(content_list.keys()));
   print(content_list.keys());
   wlk_obj = content_list[query] spawn WikiWalker(accumulated=initial(), seq=[]);
   print(wlk_obj.accumulated);
