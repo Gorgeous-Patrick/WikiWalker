@@ -2,7 +2,9 @@ import:py from wikiwalker {pre}
 import:py from fetch {fetch_text}
 import:py from lstm {initial}
 import:py from lstm {calculate}
-import:py from random {choice}
+import:py json;
+import:py from random {choice, seed}
+import:py from os {environ}
 
 node Page {
   has title: str;
@@ -33,6 +35,9 @@ with entry {
   # prep=pre();
   # metadata = prep[0];
   # pagerank = prep[1];
+  rand_seed = environ.get("SEED",0);
+  print("Random Seed", rand_seed);
+  seed(rand_seed);
   (metadata, pagerank) = pre();
   rootName = "Conflict-driven_clause_learning";
   head = Page(title=rootName);
@@ -59,4 +64,7 @@ with entry {
   wlk_obj = content_list[query] spawn WikiWalker(accumulated=initial(), seq=[]);
   print(wlk_obj.accumulated);
   print(wlk_obj.seq);
+  file = open("single_result.json", "w");
+  json.dump(wlk_obj.seq, file);
+  file.close();
 }
