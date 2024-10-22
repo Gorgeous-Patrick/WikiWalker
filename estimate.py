@@ -22,8 +22,33 @@ def rand_sched(pages: list[str]):
     node_chosen.scheduled_pages.add(page)
   return nodes
 
-def evaluate_sche():
-  pass
+def count_edge(paths: list[list[str]]):
+  count = {}
+  for path in paths:
+    for i in range(len(path) - 1):
+      edge = (path[i], path[i+1])
+      edge_count = count.get(edge, 0)
+      count[edge] = edge_count + 1
+
+      edge = (path[i + 1], path[i])
+      count[edge] = edge_count + 1
+  return count
+
+def greedy_best(paths: list[list[str]]):
+  edge_counts = count_edge(paths)
+  checked = set()
+  while len(checked) != len(edge_counts):
+    max_edge = None
+    max_value = 0
+    for edge, value in enumerate(edge_counts):
+      if edge not in checked and max_value < value:
+        max_edge = edge
+        max_value = value
+
+    
+
+
+      
   
 
   
