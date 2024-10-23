@@ -32,7 +32,7 @@ def draw_graph(metadata: Metadata, paths: list[list[str]]):
     print(len(paths))
 
     for path_to_highlight in range(len(paths)):
-        colors = ["red", "green", "blue", "violet", "gray", "purple"]
+        colors = ["red", "green", "blue", "violet", "gray", "purple", "orange", "yellow"]
         # Get the specific path to highlight (convert it to edges)
         path_edges = [
             (paths[path_to_highlight][i], paths[path_to_highlight][i + 1])
