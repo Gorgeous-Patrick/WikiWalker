@@ -20,7 +20,7 @@ def draw_graph(metadata: Metadata, paths: list[list[str]]):
     nx.draw(
         graph,
         pos,
-        with_labels=True,
+        with_labels=False,
         node_size=500,
         font_size=5,
         font_color="white",
@@ -28,7 +28,10 @@ def draw_graph(metadata: Metadata, paths: list[list[str]]):
         arrows=False,
     )
 
+    print(len(paths))
+
     for path_to_highlight in range(len(paths)):
+        colors = ["red", "green", "blue", "violet", "gray", "purple"]
         # Get the specific path to highlight (convert it to edges)
         path_edges = [
             (paths[path_to_highlight][i], paths[path_to_highlight][i + 1])
@@ -40,9 +43,9 @@ def draw_graph(metadata: Metadata, paths: list[list[str]]):
             graph,
             pos,
             edgelist=path_edges,
-            edge_color=random.choice(
-                ["red", "green", "blue", "yellow"]
-            ),  # Highlighted edge color
+            edge_color=colors[
+                path_to_highlight % len(colors)
+            ],  # Highlighted edge color
             width=2.5,  # Highlighted edge thickness
         )
 
