@@ -96,6 +96,7 @@ def greedy_best(paths: list[list[str]]):
 
 def estimate_sched(paths: list[list[str]], sched: list[PIMNode]):
     cross_node_jump = 0
+    total_jump = 0
     location = {}
     for idx, node in enumerate(sched):
         for page in node.scheduled_pages:
@@ -104,10 +105,12 @@ def estimate_sched(paths: list[list[str]], sched: list[PIMNode]):
         cur_location = -1
         for page in path:
             new_page_location = location[page]
-            if cur_location != -1 and cur_location != new_page_location:
-                cross_node_jump += 1
+            if cur_location != -1:
+                if cur_location != new_page_location:
+                    cross_node_jump += 1
+                total_jump += 1
             cur_location = new_page_location
-    return cross_node_jump
+    return cross_node_jump, total_jump
 
 
 # for i in range(10):
