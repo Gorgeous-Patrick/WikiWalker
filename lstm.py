@@ -5,6 +5,7 @@ from torch.nn.utils.rnn import pad_sequence
 
 import nltk
 
+
 def initial():
     return torch.tensor([0] * 1000)
 

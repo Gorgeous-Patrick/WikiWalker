@@ -8,6 +8,7 @@ wiki_wiki = wikipediaapi.Wikipedia("Jaseci Lab University of Michigan", "en")
 
 start = "Conflict-driven_clause_learning"
 
+
 def prep() -> Metadata:
     if not data_path.exists():
         os.makedirs(data_path)
@@ -43,7 +44,9 @@ def expand(
         name = frontier.pop(0)
         print(f"Working on {name}")
         links = fetch(name)
-        links_filtered = [link for link in links if ":" not in link and link not in visited][:10]
+        links_filtered = [
+            link for link in links if ":" not in link and link not in visited
+        ][:10]
         visited.extend(links_filtered)
         new_data[name] = links_filtered
         frontier.extend(links_filtered)
