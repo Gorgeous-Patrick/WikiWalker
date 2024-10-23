@@ -25,6 +25,10 @@ def fetch(name: str):
     # print(f"Fetching {name}")
     return list(page.links)
 
+def filter_topic(name: str):
+    page = wiki_wiki.page(name)
+    return "satisfiability" in page.text
+
 
 def fetch_text(name: str):
     page = wiki_wiki.page(name)
@@ -44,12 +48,10 @@ def expand(
         name = frontier.pop(0)
         print(f"Working on {name}")
         links = fetch(name)
-        links_filtered = [
-            link for link in links if ":" not in link and link not in visited
-        ][:10]
+        links_filtered = [link for link in links if ":" not in link and filter_topic(link)]
+        frontier.extend([link for link in links_filtered if link not in visited])
         visited.extend(links_filtered)
         new_data[name] = links_filtered
-        frontier.extend(links_filtered)
         # print("FRONTIER", frontier)
         data.update(new_data)
         # print(len(new_data))
@@ -60,7 +62,8 @@ def expand(
 if __name__ == "__main__":
     metadata = prep()
     while True:
-        expand(metadata.queue, metadata.link_data, metadata.visited, 100)
+        expand(metadata.queue, metadata.link_data, metadata.visited, 20)
         # print("NEW", frontier)
         post(metadata)
         print(f"WRITE: {len(metadata.link_data)} Pages expanded")
+        break

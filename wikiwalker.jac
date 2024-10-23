@@ -22,6 +22,7 @@ walker WikiWalker {
     text = fetch_text(here.title);
     self.accumulated = calculate(self.accumulated, text, 0.5);
     possible = [-:HyperLink:->] + [<-:HyperLink:-];
+    possible = [next_page for next_page in possible if next_page.title not in self.seq];
     if len(possible) > 0 {
       if len(self.seq) < 10{
         next = choice(possible);
@@ -38,7 +39,7 @@ with entry {
   rand_seed = environ.get("SEED",0);
   print("Random Seed", rand_seed);
   seed(rand_seed);
-  (metadata, pagerank) = pre();
+  metadata = pre();
   rootName = "Conflict-driven_clause_learning";
   head = Page(title=rootName);
   root ++> head;
@@ -48,10 +49,10 @@ with entry {
     cur = frontier.pop(0);
     # maxrank = 0.0;
     # maxnode = None;
-    if (cur.title not in metadata.link_data.keys()) {
-      continue;
-    }
     for next_title in metadata.link_data[cur.title] {
+      if (next_title not in metadata.link_data.keys()) {
+        continue;
+      }
       next_node = Page(title=next_title);
       frontier.append(next_node);
       cur +:HyperLink:+> next_node;
