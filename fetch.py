@@ -25,6 +25,7 @@ def fetch(name: str):
     # print(f"Fetching {name}")
     return list(page.links)
 
+
 def filter_topic(name: str):
     page = wiki_wiki.page(name)
     return "satisfiability" in page.text
@@ -48,7 +49,9 @@ def expand(
         name = frontier.pop(0)
         print(f"Working on {name}")
         links = fetch(name)
-        links_filtered = [link for link in links if ":" not in link and filter_topic(link)]
+        links_filtered = [
+            link for link in links if ":" not in link and filter_topic(link)
+        ]
         frontier.extend([link for link in links_filtered if link not in visited])
         visited.extend(links_filtered)
         new_data[name] = links_filtered

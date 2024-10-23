@@ -93,21 +93,21 @@ def greedy_best(paths: list[list[str]]):
 
     return pim_nodes
 
-def estimate_sched(paths:list[list[str]], sched: list[PIMNode]):
+
+def estimate_sched(paths: list[list[str]], sched: list[PIMNode]):
     cross_node_jump = 0
     location = {}
     for idx, node in enumerate(sched):
         for page in node.scheduled_pages:
-            location[page] = idx 
+            location[page] = idx
     for path in paths:
         cur_location = -1
         for page in path:
             new_page_location = location[page]
             if cur_location != -1 and cur_location != new_page_location:
-                cross_node_jump +=1
+                cross_node_jump += 1
             cur_location = new_page_location
     return cross_node_jump
-
 
 
 # for i in range(10):
@@ -124,5 +124,3 @@ with open("result.json", "r") as result_file:
     # print(rand_sched(result))
     print(estimate_sched(paths, rand_sched(paths)))
     print(estimate_sched(paths, greedy_best(paths)))
-
-

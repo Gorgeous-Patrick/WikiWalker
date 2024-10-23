@@ -14,7 +14,7 @@ def draw_graph(metadata: Metadata, paths: list[list[str]]):
     for node, edges in metadata.link_data.items():
         for edge in edges:
             if edge in metadata.link_data.keys():
-              graph.add_edge(node, edge)
+                graph.add_edge(node, edge)
     # Draw the graph with labels
     pos = nx.kamada_kawai_layout(graph, scale=2.0)  # Positioning of nodes
     nx.draw(
@@ -29,19 +29,22 @@ def draw_graph(metadata: Metadata, paths: list[list[str]]):
     )
 
     for path_to_highlight in range(len(paths)):
-      # Get the specific path to highlight (convert it to edges)
-      path_edges = [(paths[path_to_highlight][i], paths[path_to_highlight][i + 1]) 
-                    for i in range(len(paths[path_to_highlight]) - 1)]
+        # Get the specific path to highlight (convert it to edges)
+        path_edges = [
+            (paths[path_to_highlight][i], paths[path_to_highlight][i + 1])
+            for i in range(len(paths[path_to_highlight]) - 1)
+        ]
 
-
-      # Highlight the specific path by drawing it with a different color and width
-      nx.draw_networkx_edges(
-          graph,
-          pos,
-          edgelist=path_edges,
-          edge_color=random.choice(["red", "green", "blue", "yellow"]),  # Highlighted edge color
-          width=2.5          # Highlighted edge thickness
-      )
+        # Highlight the specific path by drawing it with a different color and width
+        nx.draw_networkx_edges(
+            graph,
+            pos,
+            edgelist=path_edges,
+            edge_color=random.choice(
+                ["red", "green", "blue", "yellow"]
+            ),  # Highlighted edge color
+            width=2.5,  # Highlighted edge thickness
+        )
 
     # Show the graph
     plt.show()
@@ -56,4 +59,4 @@ def prep() -> Metadata:
 if __name__ == "__main__":
     metadata = prep()
     with open("result.json", "r") as result_file:
-      draw_graph(metadata, json.load(result_file))
+        draw_graph(metadata, json.load(result_file))
