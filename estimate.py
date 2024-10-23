@@ -17,7 +17,11 @@ NUM_NODES = 10
 PAGES_PER_NODE = 3
 
 
-def rand_sched(pages: list[str]):
+def rand_sched(paths: list[list[str]]):
+    pages = set()
+    for path in paths:
+        for page in path:
+            pages.add(page)
     nodes = []
     for i in range(NUM_NODES):
         nodes.append(PIMNode())
@@ -42,7 +46,7 @@ def count_edge(paths: list[list[str]]):
     return count
 
 
-def greedy_best(paths: list[list[str]], pim_capacity: int):
+def greedy_best(paths: list[list[str]]):
     # Get the edge counts using count_edge function
     edge_counts = count_edge(paths)
 
@@ -61,7 +65,7 @@ def greedy_best(paths: list[list[str]], pim_capacity: int):
         if page1 not in page_to_pim:
             assigned = False
             for pim_node in pim_nodes:
-                if len(pim_node.scheduled_pages) < pim_capacity:
+                if len(pim_node.scheduled_pages) < PAGES_PER_NODE:
                     pim_node.scheduled_pages.add(page1)
                     page_to_pim[page1] = pim_node
                     assigned = True
@@ -76,7 +80,7 @@ def greedy_best(paths: list[list[str]], pim_capacity: int):
         if page2 not in page_to_pim:
             assigned = False
             for pim_node in pim_nodes:
-                if len(pim_node.scheduled_pages) < pim_capacity:
+                if len(pim_node.scheduled_pages) < PAGES_PER_NODE:
                     pim_node.scheduled_pages.add(page2)
                     page_to_pim[page2] = pim_node
                     assigned = True
@@ -89,6 +93,22 @@ def greedy_best(paths: list[list[str]], pim_capacity: int):
 
     return pim_nodes
 
+def estimate_sched(paths:list[list[str]], sched: list[PIMNode]):
+    cross_node_jump = 0
+    location = {}
+    for idx, node in enumerate(sched):
+        for page in node.scheduled_pages:
+            location[page] = idx 
+    for path in paths:
+        cur_location = -1
+        for page in path:
+            new_page_location = location[page]
+            if cur_location != -1 and cur_location != new_page_location:
+                cross_node_jump +=1
+            cur_location = new_page_location
+    return cross_node_jump
+
+
 
 # for i in range(10):
 #   new_env = os.environ.copy()
@@ -99,4 +119,10 @@ def greedy_best(paths: list[list[str]], pim_capacity: int):
 #     result.append(json.load(f))
 #   print(result)
 
-print(rand_sched(["ABA", "BAB", "CAC"]))
+with open("result.json", "r") as result_file:
+    paths = json.load(result_file)
+    # print(rand_sched(result))
+    print(estimate_sched(paths, rand_sched(paths)))
+    print(estimate_sched(paths, greedy_best(paths)))
+
+
