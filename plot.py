@@ -25,6 +25,7 @@ def draw_graph(metadata: Metadata, paths: list[list[str]]):
         font_size=5,
         font_color="white",
         font_weight="bold",
+        edge_color="gray",
         arrows=False,
     )
 

@@ -13,7 +13,7 @@ class PIMNode:
         return f"PIMNode({pages})"
 
 
-NUM_NODES = 10
+NUM_NODES = 20
 PAGES_PER_NODE = 3
 
 
@@ -119,6 +119,7 @@ def estimate_sched(paths: list[list[str]], sched: list[PIMNode]):
 #     result.append(json.load(f))
 #   print(result)
 
+random.seed(0)
 with open("result.json", "r") as result_file:
     paths = json.load(result_file)
     # print(rand_sched(result))

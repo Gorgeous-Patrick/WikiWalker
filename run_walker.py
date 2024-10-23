@@ -4,7 +4,7 @@ import json
 
 
 result = []
-for i in range(10):
+for i in range(20):
     new_env = os.environ.copy()
     new_env["SEED"] = str(i)
     subprocess.run(["jac", "run", "wikiwalker.jac"], env=new_env)
