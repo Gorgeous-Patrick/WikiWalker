@@ -8,6 +8,7 @@ import:py from os {environ}
 
 node Page {
   has title: str;
+  has pagerank: float;
 }
 
 edge HyperLink {
@@ -23,11 +24,16 @@ walker WikiWalker {
     self.accumulated = calculate(self.accumulated, text, 0.5);
     possible = [-:HyperLink:->] + [<-:HyperLink:-];
     possible = [next_page for next_page in possible if next_page.title not in self.seq];
-    if len(possible) > 0 {
-      if len(self.seq) < 10{
-        next = choice(possible);
-        visit next;
+    max_page = None;
+    max_rank = 0;
+    for page in possible {
+      if page.pagerank > max_rank {
+        max_rank = page.pagerank;
+        max_page = page;
       }
+    }
+    if max_page is not None {
+      visit max_page;
     }
   }
 }
@@ -39,9 +45,9 @@ with entry {
   rand_seed = environ.get("SEED",0);
   print("Random Seed", rand_seed);
   seed(rand_seed);
-  metadata = pre();
+  (metadata, pagerank) = pre();
   rootName = "Conflict-driven_clause_learning";
-  head = Page(title=rootName);
+  head = Page(title=rootName, pagerank=pagerank[rootName]);
   root ++> head;
   frontier = [head];
   content_list = {head.title: head};
@@ -53,7 +59,7 @@ with entry {
       if (next_title not in metadata.link_data.keys()) {
         continue;
       }
-      next_node = Page(title=next_title);
+      next_node = Page(title=next_title, pagerank=pagerank[next_title]);
       frontier.append(next_node);
       cur +:HyperLink:+> next_node;
       content_list[next_node.title] = next_node;

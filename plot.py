@@ -4,6 +4,15 @@ from utils import Metadata, metadata_path
 import json
 import random
 
+def count_edge(paths: list[list[str]]):
+    count = {}
+    for path in paths:
+        for i in range(len(path) - 1):
+            edge = (min(path[i], path[i + 1]), max(path[i],path[i+1]))
+            edge_count = count.get(edge, 0)
+            count[edge] = edge_count + 1
+
+    return count
 
 # Function to draw the directed graph
 def draw_graph(metadata: Metadata, paths: list[list[str]]):
@@ -53,6 +62,21 @@ def draw_graph(metadata: Metadata, paths: list[list[str]]):
     # Show the graph
     plt.show()
 
+def hist(paths: list[list[str]]):
+    # Count edges
+    edge_counts = count_edge(paths)
+    
+    # Prepare the data for histogram
+    counts = list(edge_counts.values())
+    
+    # Plot histogram
+    print(counts)
+    plt.hist(counts, edgecolor='black')
+    plt.title('Distribution of Edge Visit Counts')
+    plt.xlabel('Number of Visits')
+    plt.ylabel('Frequency of Edges')
+    plt.show()
+
 
 def prep() -> Metadata:
     with open(metadata_path, "r") as file:
@@ -63,4 +87,6 @@ def prep() -> Metadata:
 if __name__ == "__main__":
     metadata = prep()
     with open("result.json", "r") as result_file:
-        draw_graph(metadata, json.load(result_file))
+        paths = json.load(result_file)
+        draw_graph(metadata, paths)
+        hist(paths)

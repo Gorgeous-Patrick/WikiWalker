@@ -64,6 +64,7 @@ def expand(
 
 if __name__ == "__main__":
     metadata = prep()
+    print(f"Init: {len(metadata.link_data)} Pages expanded")
     while True:
         expand(metadata.queue, metadata.link_data, metadata.visited, 20)
         # print("NEW", frontier)

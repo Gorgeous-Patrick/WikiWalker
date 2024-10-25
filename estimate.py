@@ -37,12 +37,10 @@ def count_edge(paths: list[list[str]]):
     count = {}
     for path in paths:
         for i in range(len(path) - 1):
-            edge = (path[i], path[i + 1])
+            edge = (min(path[i], path[i + 1]), max(path[i],path[i+1]))
             edge_count = count.get(edge, 0)
             count[edge] = edge_count + 1
 
-            edge = (path[i + 1], path[i])
-            count[edge] = edge_count + 1
     return count
 
 
