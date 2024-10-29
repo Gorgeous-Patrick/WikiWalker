@@ -2,6 +2,12 @@ import wikipediaapi
 import json
 import os
 from utils import Metadata, metadata_path, data_path
+from pydantic import BaseModel
+
+class PageInfo(BaseModel):
+    title: str
+    text: str
+    links: list[str]
 
 
 wiki_wiki = wikipediaapi.Wikipedia("Jaseci Lab University of Michigan", "en")
@@ -19,21 +25,27 @@ def prep() -> Metadata:
     else:
         return Metadata(queue=[start], visited=[], link_data={})
 
-
-def fetch(name: str):
-    page = wiki_wiki.page(name)
-    # print(f"Fetching {name}")
-    return list(page.links)
-
-
+# Read the disk file if it exists, otherwise create the page file and download it from wikipedia
+def fetch_and_save(name: str) -> PageInfo:
+    if not data_path.exists():
+        os.makedirs(data_path)
+    file_name = name.replace("/", "_")
+    if (data_path / f"{name}.json").exists():
+        # Escape the file if it already exists
+        # Escape the path invalid characters
+        with open(data_path / f"{file_name}.json", "r") as file:
+            parsed = json.load(file)
+            return PageInfo(**parsed)
+    else:
+        page = wiki_wiki.page(name)
+        parsed = PageInfo(title=page.title, text=page.text, links=list(page.links))
+        with open(data_path / f"{file_name}.json", "w") as file:
+            file.write(parsed.model_dump_json())
+            return parsed
+    
 def filter_topic(name: str):
-    page = wiki_wiki.page(name)
+    page = fetch_and_save(name)
     return "satisfiability" in page.text
-
-
-def fetch_text(name: str):
-    page = wiki_wiki.page(name)
-    return page.text
 
 
 def post(metadata: Metadata):
@@ -48,7 +60,7 @@ def expand(
     while len(frontier) > 0:
         name = frontier.pop(0)
         print(f"Working on {name}")
-        links = fetch(name)
+        links = fetch_and_save(name).links
         links_filtered = [
             link for link in links if ":" not in link and filter_topic(link)
         ]
@@ -70,4 +82,3 @@ if __name__ == "__main__":
         # print("NEW", frontier)
         post(metadata)
         print(f"WRITE: {len(metadata.link_data)} Pages expanded")
-        break
