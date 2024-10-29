@@ -38,7 +38,7 @@ def count_edge(paths: list[list[str]]):
     count = {}
     for path in paths:
         for i in range(len(path) - 1):
-            edge = (min(path[i], path[i + 1]), max(path[i],path[i+1]))
+            edge = (min(path[i], path[i + 1]), max(path[i], path[i + 1]))
             edge_count = count.get(edge, 0)
             count[edge] = edge_count + 1
 
@@ -92,6 +92,7 @@ def greedy_best(paths: list[list[str]]):
 
     return pim_nodes
 
+
 # A brute force scheduler algorithm. Start with a random scheduling and try all possible permutations of the scheduling.
 def brute_force_random(paths: list[list[str]]):
     pages = []
@@ -116,7 +117,11 @@ def brute_force_random(paths: list[list[str]]):
             new_nodes.append(PIMNode())
         for page in pages:
             node_chosen = random.choice(
-                [node for node in new_nodes if len(node.scheduled_pages) < PAGES_PER_NODE]
+                [
+                    node
+                    for node in new_nodes
+                    if len(node.scheduled_pages) < PAGES_PER_NODE
+                ]
             )
             node_chosen.scheduled_pages.add(page)
         cross_node_jump, total_jump = estimate_sched(paths, new_nodes)

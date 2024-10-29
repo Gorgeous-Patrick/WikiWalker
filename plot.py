@@ -4,15 +4,17 @@ from utils import Metadata, metadata_path
 import json
 import random
 
+
 def count_edge(paths: list[list[str]]):
     count = {}
     for path in paths:
         for i in range(len(path) - 1):
-            edge = (min(path[i], path[i + 1]), max(path[i],path[i+1]))
+            edge = (min(path[i], path[i + 1]), max(path[i], path[i + 1]))
             edge_count = count.get(edge, 0)
             count[edge] = edge_count + 1
 
     return count
+
 
 # Function to draw the directed graph
 def draw_graph(metadata: Metadata, paths: list[list[str]]):
@@ -41,7 +43,16 @@ def draw_graph(metadata: Metadata, paths: list[list[str]]):
     print(len(paths))
 
     for path_to_highlight in range(len(paths)):
-        colors = ["red", "green", "blue", "violet", "gray", "purple", "orange", "yellow"]
+        colors = [
+            "red",
+            "green",
+            "blue",
+            "violet",
+            "gray",
+            "purple",
+            "orange",
+            "yellow",
+        ]
         # Get the specific path to highlight (convert it to edges)
         path_edges = [
             (paths[path_to_highlight][i], paths[path_to_highlight][i + 1])
@@ -62,19 +73,20 @@ def draw_graph(metadata: Metadata, paths: list[list[str]]):
     # Show the graph
     plt.show()
 
+
 def hist(paths: list[list[str]]):
     # Count edges
     edge_counts = count_edge(paths)
-    
+
     # Prepare the data for histogram
     counts = list(edge_counts.values())
-    
+
     # Plot histogram
     print(counts)
-    plt.hist(counts, edgecolor='black')
-    plt.title('Distribution of Edge Visit Counts')
-    plt.xlabel('Number of Visits')
-    plt.ylabel('Frequency of Edges')
+    plt.hist(counts, edgecolor="black")
+    plt.title("Distribution of Edge Visit Counts")
+    plt.xlabel("Number of Visits")
+    plt.ylabel("Frequency of Edges")
     plt.show()
 
 
