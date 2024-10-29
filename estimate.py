@@ -18,10 +18,11 @@ PAGES_PER_NODE = 3
 
 
 def rand_sched(paths: list[list[str]]):
-    pages = set()
+    pages = []
     for path in paths:
         for page in path:
-            pages.add(page)
+            if page not in pages:
+                pages.append(page)
     nodes = []
     for i in range(NUM_NODES):
         nodes.append(PIMNode())
@@ -91,6 +92,40 @@ def greedy_best(paths: list[list[str]]):
 
     return pim_nodes
 
+# A brute force scheduler algorithm. Start with a random scheduling and try all possible permutations of the scheduling.
+def brute_force_random(paths: list[list[str]]):
+    pages = []
+    for path in paths:
+        for page in path:
+            if page not in pages:
+                pages.append(page)
+    nodes = []
+    for i in range(NUM_NODES):
+        nodes.append(PIMNode())
+    for page in pages:
+        node_chosen = random.choice(
+            [node for node in nodes if len(node.scheduled_pages) < PAGES_PER_NODE]
+        )
+        node_chosen.scheduled_pages.add(page)
+    best_cross_node_jump = 0
+    best_total_jump = 0
+    best_sched = nodes
+    for i in range(100000):
+        new_nodes = []
+        for i in range(NUM_NODES):
+            new_nodes.append(PIMNode())
+        for page in pages:
+            node_chosen = random.choice(
+                [node for node in new_nodes if len(node.scheduled_pages) < PAGES_PER_NODE]
+            )
+            node_chosen.scheduled_pages.add(page)
+        cross_node_jump, total_jump = estimate_sched(paths, new_nodes)
+        if cross_node_jump < best_cross_node_jump:
+            best_cross_node_jump = cross_node_jump
+            best_total_jump = total_jump
+            best_sched = new_nodes
+    return best_sched
+
 
 def estimate_sched(paths: list[list[str]], sched: list[PIMNode]):
     cross_node_jump = 0
@@ -126,3 +161,4 @@ with open("result.json", "r") as result_file:
     # print(rand_sched(result))
     print(estimate_sched(paths, rand_sched(paths)))
     print(estimate_sched(paths, greedy_best(paths)))
+    print(estimate_sched(paths, brute_force_random(paths)))
