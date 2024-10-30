@@ -2,6 +2,7 @@ import subprocess
 import os
 import json
 import random
+from fetch import fetch_and_save
 
 
 class PIMNode:
@@ -15,6 +16,19 @@ class PIMNode:
 
 NUM_NODES = 20
 PAGES_PER_NODE = 3
+
+# Calculate the avg of page text size
+def avg_page_size(paths: list[list[str]]):
+    total_size = 0
+    page_list = []
+    for path in paths:
+        for page in path:
+            if page not in page_list:
+                page_list.append(page)
+    for page in page_list:
+        page_content = fetch_and_save(page).text
+        total_size += len(page_content)
+    return total_size / len(page_list)
 
 
 def rand_sched(paths: list[list[str]]):
@@ -164,6 +178,7 @@ random.seed(0)
 with open("result.json", "r") as result_file:
     paths = json.load(result_file)
     # print(rand_sched(result))
+    print(avg_page_size(paths))
     print(estimate_sched(paths, rand_sched(paths)))
     print(estimate_sched(paths, greedy_best(paths)))
     print(estimate_sched(paths, brute_force_random(paths)))

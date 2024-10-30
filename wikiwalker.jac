@@ -1,5 +1,5 @@
 import:py from wikiwalker {pre}
-import:py from fetch {fetch_text}
+import:py from fetch {fetch_and_save}
 import:py from lstm {initial}
 import:py from lstm {calculate}
 import:py json;
@@ -20,7 +20,7 @@ walker WikiWalker {
   has seq: list[str];
   can calculate with Page entry {
     self.seq.append(here.title);
-    text = fetch_text(here.title);
+    text = fetch_and_save(here.title).text;
     self.accumulated = calculate(self.accumulated, text, 0.5);
     possible = [-:HyperLink:->] + [<-:HyperLink:-];
     possible = [next_page for next_page in possible if next_page.title not in self.seq];
