@@ -27,19 +27,20 @@ def prep() -> Metadata:
 
 # Read the disk file if it exists, otherwise create the page file and download it from wikipedia
 def fetch_and_save(name: str) -> PageInfo:
-    if not data_path.exists():
-        os.makedirs(data_path)
+    cache_path = data_path / "cache"
+    if not cache_path.exists():
+        os.makedirs(cache_path)
     file_name = name.replace("/", "_")
-    if (data_path / f"{name}.json").exists():
+    if (cache_path/f"{file_name}.json").exists():
         # Escape the file if it already exists
         # Escape the path invalid characters
-        with open(data_path / f"{file_name}.json", "r") as file:
+        with open(cache_path/ f"{file_name}.json", "r") as file:
             parsed = json.load(file)
             return PageInfo(**parsed)
     else:
         page = wiki_wiki.page(name)
         parsed = PageInfo(title=page.title, text=page.text, links=list(page.links))
-        with open(data_path / f"{file_name}.json", "w") as file:
+        with open(cache_path / f"{file_name}.json", "w") as file:
             file.write(parsed.model_dump_json())
             return parsed
     
