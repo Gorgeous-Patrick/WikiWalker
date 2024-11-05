@@ -4,6 +4,7 @@ import os
 from utils import Metadata, metadata_path, data_path
 from pydantic import BaseModel
 
+
 class PageInfo(BaseModel):
     title: str
     text: str
@@ -25,16 +26,17 @@ def prep() -> Metadata:
     else:
         return Metadata(queue=[start], visited=[], link_data={})
 
+
 # Read the disk file if it exists, otherwise create the page file and download it from wikipedia
 def fetch_and_save(name: str) -> PageInfo:
     cache_path = data_path / "cache"
     if not cache_path.exists():
         os.makedirs(cache_path)
     file_name = name.replace("/", "_")
-    if (cache_path/f"{file_name}.json").exists():
+    if (cache_path / f"{file_name}.json").exists():
         # Escape the file if it already exists
         # Escape the path invalid characters
-        with open(cache_path/ f"{file_name}.json", "r") as file:
+        with open(cache_path / f"{file_name}.json", "r") as file:
             parsed = json.load(file)
             return PageInfo(**parsed)
     else:
@@ -43,7 +45,8 @@ def fetch_and_save(name: str) -> PageInfo:
         with open(cache_path / f"{file_name}.json", "w") as file:
             file.write(parsed.model_dump_json())
             return parsed
-    
+
+
 def filter_topic(name: str):
     page = fetch_and_save(name)
     return "satisfiability" in page.text

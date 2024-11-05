@@ -17,6 +17,7 @@ class PIMNode:
 NUM_NODES = 20
 PAGES_PER_NODE = 3
 
+
 # Calculate the avg of page text size
 def avg_page_size(paths: list[list[str]]):
     total_size = 0
@@ -59,7 +60,7 @@ def count_edge(paths: list[list[str]]):
     return count
 
 
-def greedy_best(paths: list[list[str]]):
+def sorted_best(paths: list[list[str]]):
     # Get the edge counts using count_edge function
     edge_counts = count_edge(paths)
 
@@ -146,6 +147,75 @@ def brute_force_random(paths: list[list[str]]):
     return best_sched
 
 
+# Greedy algorithm that tries to minimize the number of cross-node jumps. You start by random scheduling and then try to move pages to other nodes to reduce the number of cross-node jumps.
+def greedy_best(paths: list[list[str]]):
+    pages = []
+    for path in paths:
+        for page in path:
+            if page not in pages:
+                pages.append(page)
+    nodes = []
+    for i in range(NUM_NODES):
+        nodes.append(PIMNode())
+    for page in pages:
+        node_chosen = random.choice(
+            [node for node in nodes if len(node.scheduled_pages) < PAGES_PER_NODE]
+        )
+        node_chosen.scheduled_pages.add(page)
+    best_cross_node_jump, best_total_jump = estimate_sched(paths, nodes)
+    best_sched = nodes
+    for i in range(100000):
+        new_nodes = []
+        for i in range(NUM_NODES):
+            new_nodes.append(PIMNode())
+        for page in pages:
+            node_chosen = random.choice(
+                [
+                    node
+                    for node in new_nodes
+                    if len(node.scheduled_pages) < PAGES_PER_NODE
+                ]
+            )
+            node_chosen.scheduled_pages.add(page)
+        cross_node_jump, total_jump = estimate_sched(paths, new_nodes)
+        if cross_node_jump < best_cross_node_jump:
+            best_cross_node_jump = cross_node_jump
+            best_total_jump = total_jump
+            best_sched = new_nodes
+    return best_sched
+
+
+# A scheduler that takes the current scheduling and the paths that walkers took (accumulated) and adjusts the scheduling to minimize the number of cross-node jumps.
+def adjust_sched(paths: list[list[str]], sched: list[PIMNode]):
+    cross_node_jump, total_jump = estimate_sched(paths, sched)
+    pages = []
+    for path in paths:
+        for page in path:
+            if page not in pages:
+                pages.append(page)
+    best_cross_node_jump, best_total_jump = estimate_sched(paths, sched)
+    best_sched = sched
+    for i in range(100000):
+        new_nodes = []
+        for i in range(NUM_NODES):
+            new_nodes.append(PIMNode())
+        for page in pages:
+            node_chosen = random.choice(
+                [
+                    node
+                    for node in new_nodes
+                    if len(node.scheduled_pages) < PAGES_PER_NODE
+                ]
+            )
+            node_chosen.scheduled_pages.add(page)
+        cross_node_jump, total_jump = estimate_sched(paths, new_nodes)
+        if cross_node_jump < best_cross_node_jump:
+            best_cross_node_jump = cross_node_jump
+            best_total_jump = total_jump
+            best_sched = new_nodes
+    return best_sched
+
+
 def estimate_sched(paths: list[list[str]], sched: list[PIMNode]):
     cross_node_jump = 0
     total_jump = 0
@@ -180,5 +250,13 @@ with open("result.json", "r") as result_file:
     # print(rand_sched(result))
     print(avg_page_size(paths))
     print(estimate_sched(paths, rand_sched(paths)))
-    print(estimate_sched(paths, greedy_best(paths)))
+    print(estimate_sched(paths, sorted_best(paths)))
     print(estimate_sched(paths, brute_force_random(paths)))
+    print(estimate_sched(paths, greedy_best(paths)))
+
+    print("Iterate")
+    sched = rand_sched(paths)
+    for i in range(1, 1000):
+        sched = adjust_sched(paths * i, sched)
+        jump, total = estimate_sched(paths * i, sched)
+        print(jump / total)
