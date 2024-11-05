@@ -1,13 +1,14 @@
 from pydantic import BaseModel
 from pathlib import Path
 
-
-class Metadata(BaseModel):
-    link_data: dict[str, list[str]] = {}
-    visited: list[str] = []
-    queue: list[str] = []
+class PageInfo(BaseModel):
+    title: str
+    text: str
+    links: list[str]
+    images: list[str]
 
 
 data_path = Path("data")
+cache_path = data_path / "cache"
 metadata_path = Path("data", "metadata.json")
 pagerank_path = Path("data", "pagerank.json")

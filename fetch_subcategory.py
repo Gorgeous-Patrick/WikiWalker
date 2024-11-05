@@ -1,8 +1,9 @@
 import wikipediaapi
 import wikipedia
+import json
 import requests
 from bs4 import BeautifulSoup
-from utils import Metadata, metadata_path
+from utils import cache_path, PageInfo
 
 wiki_wiki = wikipediaapi.Wikipedia("Jaseci Lab University of Michigan", "en")
 
@@ -19,6 +20,20 @@ def get_all_pages_in_category(category_name, language="en"):
             if member.ns == 0:
                 if title not in pages:
                     pages[title] = member
+                # If cache does not exist, fetch the page
+                if not (cache_path / f"{title.replace('/', '_')}.json").exists():
+                    # Fetch the page
+                    print("TITLE",member.title)
+                    text = member.text
+                    links = [link.title() for link in member.links]
+                    images = fetch_images(member)
+                    print(links)
+                    page = PageInfo(title=title, text=text, links=links, images=images)
+                    with open(cache_path / f"{title.replace('/', '_')}.json", "w") as file:
+                        file.write(page.model_dump_json())
+
+
+                
             elif member.ns == 14 and title not in categories:
                 categories.append(title)
                 fetch_pages(member)
@@ -29,7 +44,16 @@ def get_all_pages_in_category(category_name, language="en"):
 
 def fetch_images(page: wikipediaapi.WikipediaPage):
     # Download the HTML text of the page
-    return wikipedia.page(page.title).images
+    bs = BeautifulSoup(requests.get(page.fullurl).text, "html.parser")
+    images = []
+    # Find all image tags
+    for img in bs.find_all("img"):
+        # Get the image URL
+        img_url = img["src"]
+        # Check if the image URL is a valid image
+        if img_url.startswith("//upload.wikimedia.org"):
+            images.append("https:" + img_url)
+    return images
 
 
 def extract_links(pages):
@@ -41,8 +65,6 @@ def extract_links(pages):
 
 # Example usage:
 category_name = "Machine learning"  # Change this to your desired category
-print(fetch_images(wiki_wiki.page("Blockchain")))
-exit(0)
 pages = get_all_pages_in_category(category_name)
 
 # Print the titles of all related pages
