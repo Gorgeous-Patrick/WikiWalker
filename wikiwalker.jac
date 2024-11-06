@@ -1,5 +1,4 @@
-import:py from wikiwalker {pre}
-import:py from fetch {fetch_and_save}
+import:py from wikiwalker {pre, read_page_text, post}
 import:py from lstm {initial}
 import:py from lstm {calculate}
 import:py json;
@@ -20,9 +19,9 @@ walker WikiWalker {
   has seq: list[str];
   can calculate with Page entry {
     self.seq.append(here.title);
-    text = fetch_and_save(here.title).text;
-    self.accumulated = calculate(self.accumulated, text, 0.5);
-    possible = [-:HyperLink:->] + [<-:HyperLink:-];
+    text = read_page_text(here.title);
+    # self.accumulated = calculate(self.accumulated, text, 0.5);
+    possible = [-:HyperLink:->];
     possible = [next_page for next_page in possible if next_page.title not in self.seq];
     max_page = None;
     max_rank = 0;
@@ -45,33 +44,37 @@ with entry {
   rand_seed = environ.get("SEED",0);
   print("Random Seed", rand_seed);
   seed(rand_seed);
-  (metadata, pagerank) = pre();
-  rootName = "Conflict-driven_clause_learning";
-  head = Page(title=rootName, pagerank=pagerank[rootName]);
-  root ++> head;
-  frontier = [head];
-  content_list = {head.title: head};
-  while (len(frontier) > 0 and len(frontier) < 100) {
-    cur = frontier.pop(0);
-    # maxrank = 0.0;
-    # maxnode = None;
-    for next_title in metadata.link_data[cur.title] {
-      if (next_title not in metadata.link_data.keys()) {
-        continue;
-      }
-      next_node = Page(title=next_title, pagerank=pagerank[next_title]);
-      frontier.append(next_node);
-      cur +:HyperLink:+> next_node;
-      content_list[next_node.title] = next_node;
-
+  (network, pagerank) = pre();
+  content_list = {};
+  # Reconstruct the network
+  for title in network.nodes {
+    content_list[title] = Page(title=title, pagerank=pagerank[title]);
+  }
+  for title in network.nodes {
+    for next_title in network.links[title] {
+      content_list[title] +:HyperLink:+> content_list[next_title];
     }
   }
-  query = choice(list(content_list.keys()));
-  print(content_list.keys());
-  wlk_obj = content_list[query] spawn WikiWalker(accumulated=initial(), seq=[]);
-  print(wlk_obj.accumulated);
-  print(wlk_obj.seq);
-  file = open("single_result.json", "w");
-  json.dump(wlk_obj.seq, file);
-  file.close();
+  # while (len(frontier) > 0 and len(frontier) < 100) {
+  #   cur = frontier.pop(0);
+  #   # maxrank = 0.0;
+  #   # maxnode = None;
+  #   for next_title in network.links[cur.title] {
+  #     if (next_title not in metadata.link_data.keys()) {
+  #       continue;
+  #     }
+  #     next_node = Page(title=next_title, pagerank=pagerank[next_title]);
+  #     frontier.append(next_node);
+  #     cur +:HyperLink:+> next_node;
+  #     content_list[next_node.title] = next_node;
+
+  #   }
+  # }
+  while True {
+    query = choice(list(content_list.keys()));
+    wlk_obj = content_list[query] spawn WikiWalker(accumulated=initial(), seq=[]);
+    print(wlk_obj.accumulated);
+    print(wlk_obj.seq);
+    post(wlk_obj.seq);
+  }
 }

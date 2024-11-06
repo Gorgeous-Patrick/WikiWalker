@@ -3,7 +3,7 @@ import wikipedia
 import json
 import requests
 from bs4 import BeautifulSoup
-from utils import cache_path, PageInfo
+from utils import cache_path, PageInfo, Metadata
 
 wiki_wiki = wikipediaapi.Wikipedia("Jaseci Lab University of Michigan", "en")
 
@@ -64,12 +64,11 @@ def extract_links(pages):
 
 
 # Example usage:
-category_name = "Machine learning"  # Change this to your desired category
-pages = get_all_pages_in_category(category_name)
+# category_name = "Machine learning"  # Change this to your desired category
+# pages = get_all_pages_in_category(category_name)
 
-# Print the titles of all related pages
-print("Pages related to category:", category_name)
-for title in pages.keys():
-    print(title)
-print("Total number of pages:", len(pages))
-print(extract_links(pages))
+# # Print the titles of all related pages
+# print("Pages related to category:", category_name)
+# for title in pages.keys():
+#     print(title)
+# print("Total number of pages:", len(pages))

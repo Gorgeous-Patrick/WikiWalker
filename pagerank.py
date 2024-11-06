@@ -1,15 +1,15 @@
 from typing import Dict
 from collections import defaultdict
-from utils import Metadata, metadata_path, pagerank_path
+from utils import Network, network_path, pagerank_path
 import json
 
 
 def compute_page_rank(
-    metadata: Metadata, damping_factor: float = 0.85, iterations: int = 100
+    network: Network, damping_factor: float = 0.85, iterations: int = 100
 ) -> Dict[str, float]:
     # Initialize the page rank dict with equal values
-    link_data = metadata.link_data
-    pages = link_data.keys()
+    link_data = network.links
+    pages = network.nodes
     n = len(pages)
 
     if n == 0:
@@ -37,19 +37,18 @@ def compute_page_rank(
 
     return page_rank
 
-
-def prep() -> Metadata:
-    with open(metadata_path, "r") as file:
+def prep():
+    with open(network_path, "r") as file:
         parsed = json.load(file)
-        return Metadata.model_validate(parsed)
+        return Network(**parsed)
 
-
-def post(result: dict[str, float]):
+def post(result):
     with open(pagerank_path, "w") as file:
-        json.dump(result, file)
+        file.write(json.dumps(result))
 
 
 if __name__ == "__main__":
-    metadata = prep()
-    result = compute_page_rank(metadata, iterations=100)
+    network = prep()
+    result = compute_page_rank(network, iterations=100)
+    print(result)
     post(result)
