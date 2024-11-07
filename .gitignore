@@ -2,5 +2,6 @@ __jac_gen__
 __pycache__
 env
 data/
+archive_data/
 result.json
 single_result.json

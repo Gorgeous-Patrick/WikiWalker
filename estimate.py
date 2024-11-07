@@ -2,6 +2,7 @@ import json
 import random
 from utils import run_path, SchedulingEstimation, estimation_path, IterativeJump
 from wikiwalker import read_page_text
+import copy
 
 
 class PIMNode:
@@ -167,7 +168,7 @@ def greedy_best(paths: list[list[str]]):
     best_cross_node_jump = estimate_sched(paths, nodes)
     best_sched = nodes
     # Every time we swap two pages, we check if the number of cross-node jumps is reduced.
-    for i in range(10000):
+    for i in range(20000):
         # Randomly choose two different pages
         page1 = random.choice(pages)
         page2 = random.choice(pages)
@@ -304,13 +305,12 @@ for file_name in run_path.iterdir():
         path = json.load(file)
         paths.append(path)
     # print(rand_sched(result))
-print(paths)
 print(avg_page_size(paths))
 result = SchedulingEstimation(paths=paths, avg_page_size=avg_page_size(paths))
-# result.rand_sched_jump = estimate_sched(paths, rand_sched(paths))
-# result.brute_force_rand_jump = estimate_sched(paths, brute_force_random(paths))
-# result.greedy_best_jump = estimate_sched(paths, greedy_best(paths))
-# save_result(result)
+result.rand_sched_jump = estimate_sched(paths, rand_sched(paths))
+result.brute_force_rand_jump = estimate_sched(paths, brute_force_random(paths))
+result.greedy_best_jump = estimate_sched(paths, greedy_best(paths))
+save_result(result)
 # result.iterative_adjust_jump = []
 # print(estimate_sched(paths, rand_sched(paths)))
 # print(estimate_sched(paths, sorted_best(paths)))
@@ -319,13 +319,18 @@ result = SchedulingEstimation(paths=paths, avg_page_size=avg_page_size(paths))
 
 print("Iterate")
 print("Number of walkers:", len(paths))
+step = 100
 sched = rand_sched(paths)
-for i in range(100, len(paths), 100):
-    new_sched = adjust_sched(paths[:i], sched)
+for i in range(step, len(paths), step):
+    new_sched = adjust_sched(paths[:i], copy.deepcopy(sched))
     moved_pages = compare_schedules(sched, new_sched)
+    print("Moved pages:", len(moved_pages))
+    # if len(moved_pages) > 0:
+    #     print("Moved pages:", moved_pages)
+    #     break
     sched = new_sched
-    total = total_jump(paths[(i - 100) : i])
-    jump = estimate_sched(paths[(i - 100) : i], sched)
+    total = total_jump(paths[(i - step) : i])
+    jump = estimate_sched(paths[(i - step) : i], sched)
     result.iterative_adjust_jump.append(
         IterativeJump(
             moved_pages=moved_pages, cross_node_jump=jump, total_jump_this_iter=total
