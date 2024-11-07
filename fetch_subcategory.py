@@ -23,17 +23,17 @@ def get_all_pages_in_category(category_name, language="en"):
                 # If cache does not exist, fetch the page
                 if not (cache_path / f"{title.replace('/', '_')}.json").exists():
                     # Fetch the page
-                    print("TITLE",member.title)
+                    print("TITLE", member.title)
                     text = member.text
                     links = [link.title() for link in member.links]
                     images = fetch_images(member)
                     print(links)
                     page = PageInfo(title=title, text=text, links=links, images=images)
-                    with open(cache_path / f"{title.replace('/', '_')}.json", "w") as file:
+                    with open(
+                        cache_path / f"{title.replace('/', '_')}.json", "w"
+                    ) as file:
                         file.write(page.model_dump_json())
 
-
-                
             elif member.ns == 14 and title not in categories:
                 categories.append(title)
                 fetch_pages(member)

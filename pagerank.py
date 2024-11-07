@@ -37,10 +37,12 @@ def compute_page_rank(
 
     return page_rank
 
+
 def prep():
     with open(network_path, "r") as file:
         parsed = json.load(file)
         return Network(**parsed)
+
 
 def post(result):
     with open(pagerank_path, "w") as file:
