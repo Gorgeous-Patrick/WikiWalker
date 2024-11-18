@@ -1,4 +1,4 @@
-import:py from wikiwalker {pre, read_page_text, post}
+import:jac from wikiwalkerlib {pre, read_page_text, post}
 import:py from lstm {initial}
 import:py from lstm {calculate}
 import:py json;
