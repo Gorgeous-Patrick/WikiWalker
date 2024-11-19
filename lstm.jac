@@ -14,20 +14,21 @@ can initial(){
 }
 
 # Step 3: Define LSTM model
-node LSTMModel(nn.Module):
-    can __init__(self, embedding_dim, hidden_dim, output_dim, num_layers=1) {
-        super(LSTMModel, self).__init__();
+node LSTMModel {
+
+    can init(self:any, embedding_dim:any, hidden_dim:any, output_dim:any, num_layers:any=1) {
         self.lstm = nn.LSTM(embedding_dim, hidden_dim, num_layers, batch_first=True);
         self.fc = nn.Linear(hidden_dim, output_dim);
     }
 
-    can forward(self, x){
+    can forward(self:any, x:any){
 
-        lstm_out, _ = self.lstm(x);
+        (lstm_out, _) = self.lstm(x);
         lstm_out = lstm_out[-1, :];
         output = self.fc(lstm_out);
         return output;
     }
+}
 
 can calculate(prev, text, damping_factor=0.5){
 
@@ -57,7 +58,7 @@ can calculate(prev, text, damping_factor=0.5){
 
     # Step 4: Pass embeddings through LSTM
     with torch.no_grad() {
-        contextual_embedding = model(embeddings);
+        contextual_embedding = model.forward(embeddings);
         return (1 - damping_factor) * contextual_embedding + damping_factor * prev;
     }
 }
