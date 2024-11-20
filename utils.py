@@ -29,6 +29,7 @@ class SchedulingEstimation(BaseModel):
     greedy_best_sched: list[list[str]] = []
     iterative_adjust_jump: list[IterativeJump] = []
 
+
 data_path = Path("data")
 cache_path = data_path / "cache"
 run_path = data_path / "run"
@@ -39,4 +40,3 @@ pagerank_path = Path("data", "pagerank.json")
 
 NUM_NODES = 16
 PAGES_PER_NODE = 3000
-

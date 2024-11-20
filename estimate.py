@@ -1,6 +1,14 @@
 import json
 import random
-from utils import run_path, SchedulingEstimation, estimation_path, IterativeJump, PageInfo, NUM_NODES, PAGES_PER_NODE
+from utils import (
+    run_path,
+    SchedulingEstimation,
+    estimation_path,
+    IterativeJump,
+    PageInfo,
+    NUM_NODES,
+    PAGES_PER_NODE,
+)
 import copy
 
 
@@ -83,11 +91,7 @@ def brute_force_random(paths: list[list[str]]):
             new_nodes.append([])
         for page in pages:
             node_chosen = random.choice(
-                [
-                    node
-                    for node in new_nodes
-                    if len(node) < PAGES_PER_NODE
-                ]
+                [node for node in new_nodes if len(node) < PAGES_PER_NODE]
             )
             node_chosen.append(page)
         cross_node_jump = estimate_sched(paths, new_nodes)
@@ -235,6 +239,7 @@ def compare_schedules(sched: list[list[str]], new_sched: list[list[str]]):
             moved_pages.append(page)
     return moved_pages
 
+
 if __name__ == "__main__":
     random.seed(0)
     paths = []
@@ -273,9 +278,7 @@ if __name__ == "__main__":
         total = total_jump(paths[(i - step) : i])
         jump = estimate_sched(paths[(i - step) : i], sched)
         result.iterative_adjust_jump.append(
-            IterativeJump(
-                moved_pages=moved_pages, cross_node_jump=jump, sched=sched
-            )
+            IterativeJump(moved_pages=moved_pages, cross_node_jump=jump, sched=sched)
         )
         save_result(result)
         print(jump / total)
