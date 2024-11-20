@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from utils import Metadata, metadata_path
 import json
 import random
+from estimate import estimate_sched
 
 
 def count_edge(paths: list[list[str]]):

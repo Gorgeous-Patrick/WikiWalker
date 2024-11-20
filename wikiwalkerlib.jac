@@ -20,7 +20,6 @@ can pre() {
 
 
 can read_page_text(title: str) {
-
     with open(f"data/cache/{title.replace('/', '_')}.json", "r") as file {
 
         parsed = json.load(file);

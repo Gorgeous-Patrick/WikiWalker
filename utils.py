@@ -16,8 +16,7 @@ class Network(BaseModel):
 
 class IterativeJump(BaseModel):
     moved_pages: list[str]
-    cross_node_jump: int
-    total_jump_this_iter: int
+    sched: list[list[str]]
 
 
 class SchedulingEstimation(BaseModel):
@@ -25,11 +24,10 @@ class SchedulingEstimation(BaseModel):
     walker_count: int = 0
     avg_page_size: float = 0
     total_jump_count: int = 0
-    rand_sched_jump: int = 0
-    brute_force_rand_jump: int = 0
-    greedy_best_jump: int = 0
+    rand_sched: list[list[str]] = []
+    brute_force_sched: list[list[str]] = []
+    greedy_best_sched: list[list[str]] = []
     iterative_adjust_jump: list[IterativeJump] = []
-
 
 data_path = Path("data")
 cache_path = data_path / "cache"
@@ -38,3 +36,7 @@ estimation_path = data_path / "estimation.json"
 metadata_path = Path("data", "metadata.json")
 network_path = Path("data", "network.json")
 pagerank_path = Path("data", "pagerank.json")
+
+NUM_NODES = 16
+PAGES_PER_NODE = 3000
+
