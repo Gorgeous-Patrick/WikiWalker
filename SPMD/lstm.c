@@ -19,6 +19,13 @@ double __mram_noinit forget_res[HIDDEN_SIZE];
 double __mram_noinit output_res[HIDDEN_SIZE];
 double __mram_noinit cell_res[HIDDEN_SIZE];
 
+#define INPUT_STR_SIZE (1 << 10)
+
+char __mram_noinit query[INPUT_STR_SIZE];
+uint32_t __mram_noinit downloaded;
+__host volatile uint64_t output;
+__host volatile uint64_t ready = 0;
+
 double input[CHUNK_SIZE];
 
 double hidden[HIDDEN_SIZE];
@@ -80,19 +87,32 @@ void lstm_forward(Tensor_ptr forget_weight_t, Vec forget_bias_v, Tensor_ptr inpu
 
 int main() {
     mem_reset();
+    ready = 1;
+
+    // while (!downloaded) {
+    //     printf("Waiting for download\n");
+    // }
+
+    __dma_aligned char local_cache[INPUT_STR_SIZE];
+    mram_read(query, local_cache, INPUT_STR_SIZE);
+    output = 0;
+    for (int i = 0; i < 8; i++) {
+        output += local_cache[i];
+    }
+    
     // Create tensors and vectors for LSTM gates
-    Tensor_ptr forget_weight_t = create_tensor(forget_weight, CHUNK_SIZE, HIDDEN_SIZE);
-    Vec forget_bias_v = create_vec(forget_bias, CHUNK_SIZE);
+    // Tensor_ptr forget_weight_t = create_tensor(forget_weight, CHUNK_SIZE, HIDDEN_SIZE);
+    // Vec forget_bias_v = create_vec(forget_bias, CHUNK_SIZE);
 
-    Tensor_ptr input_weight_t = create_tensor(input_weight, CHUNK_SIZE, HIDDEN_SIZE);
-    Vec input_bias_v = create_vec(input_bias, CHUNK_SIZE);
+    // Tensor_ptr input_weight_t = create_tensor(input_weight, CHUNK_SIZE, HIDDEN_SIZE);
+    // Vec input_bias_v = create_vec(input_bias, CHUNK_SIZE);
 
-    Tensor_ptr cell_weight_t = create_tensor(cell_weight, CHUNK_SIZE, HIDDEN_SIZE);
-    Vec cell_bias_v = create_vec(cell_bias, CHUNK_SIZE);
+    // Tensor_ptr cell_weight_t = create_tensor(cell_weight, CHUNK_SIZE, HIDDEN_SIZE);
+    // Vec cell_bias_v = create_vec(cell_bias, CHUNK_SIZE);
 
-    Tensor_ptr output_weight_t = create_tensor(output_weight, CHUNK_SIZE, HIDDEN_SIZE);
-    Vec output_bias_v = create_vec(output_bias, CHUNK_SIZE);
-    lstm_forward(forget_weight_t, forget_bias_v, input_weight_t, input_bias_v, cell_weight_t, cell_bias_v, output_weight_t, output_bias_v);
+    // Tensor_ptr output_weight_t = create_tensor(output_weight, CHUNK_SIZE, HIDDEN_SIZE);
+    // Vec output_bias_v = create_vec(output_bias, CHUNK_SIZE);
+    // lstm_forward(forget_weight_t, forget_bias_v, input_weight_t, input_bias_v, cell_weight_t, cell_bias_v, output_weight_t, output_bias_v);
     return 0;
 }
 
