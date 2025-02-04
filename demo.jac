@@ -1,21 +1,22 @@
-node __pim__ Page {
-  __shared__ Model lstm = LSTM();
+node  Page {
   text: string = "Wikipedia Page Text for Jac";
   title: string = "Jac";
 }
 
-edge __pim__ HyperLink {
+edge  HyperLink {
   rank: float;
   title: str;
 }
 
-walker __pim__ WikiWalker on Page { # <-- Running on DPU, All data in Page is loaded on to DPU
+walker  WikiWalker on Page { # <-- Running on DPU, All data in Page is loaded on to DPU
   has accumulated: torch.tensor;
+  has const lstm: LSTM();
   can calculate with Page entry {
     # 1. Load the text from page
     text = here.text;
     # 2. Accumulate the LSTM
-    self.accumulated += calculate(self.accumulated, text, 0.5);
+    embedding =  lstm.calculate(text); # <-- Calculates the LSTM embedding of the text
+    self.accumulated += embedding;
     # 3. Get the hyperlinks
     possible = [-:HyperLink:->];
     next = next_page(possible);
@@ -28,9 +29,10 @@ walker __pim__ WikiWalker on Page { # <-- Running on DPU, All data in Page is lo
 
 
 with entry { # <-- Running on CPU
+  # 0. Initialize the titles
+  titles = [...]; # <-- List of titles in the network
   # 1. Construct the network.
-  pages = construct_nodes();
-  edges = construct_edges();
+  pages, edges = fetch_html_and_construct_network(titles); 
   # 2. Initialize the scheduler
   scheduler = Scheduler(pages, edges, dpus);
   dpus = allocate_dpus(scheduler = scheduler);
