@@ -307,9 +307,11 @@ for file_name in run_path.iterdir():
     # print(rand_sched(result))
 print(avg_page_size(paths))
 result = SchedulingEstimation(paths=paths, avg_page_size=avg_page_size(paths))
-result.rand_sched_jump = estimate_sched(paths, rand_sched(paths))
-result.brute_force_rand_jump = estimate_sched(paths, brute_force_random(paths))
-result.greedy_best_jump = estimate_sched(paths, greedy_best(paths))
+# result.rand_sched_jump = estimate_sched(paths, rand_sched(paths))
+# result.brute_force_rand_jump = estimate_sched(paths, brute_force_random(paths))
+rand_sched_res = rand_sched(paths)
+brute_force_sched = brute_force_random(paths)
+# result.greedy_best_jump = estimate_sched(paths, greedy_best(paths))
 save_result(result)
 # result.iterative_adjust_jump = []
 # print(estimate_sched(paths, rand_sched(paths)))
@@ -330,12 +332,18 @@ for i in range(step, len(paths), step):
     #     break
     sched = new_sched
     total = total_jump(paths[(i - step) : i])
-    jump = estimate_sched(paths[(i - step) : i], sched)
+    it_jump = estimate_sched(paths[(i - step) : i], sched)
+    rand_jump = estimate_sched(paths[(i - step) : i], rand_sched_res)
+    brute_jump = estimate_sched(paths[(i - step) : i], brute_force_sched)
     result.iterative_adjust_jump.append(
         IterativeJump(
-            moved_pages=moved_pages, cross_node_jump=jump, total_jump_this_iter=total
+            moved_pages=moved_pages, 
+            it_cross_node_jump=it_jump, 
+            rand_cross_node_jump=rand_jump,
+            brute_force_cross_node_jump=brute_jump,
+            total_jump_this_iter=total
         )
     )
     save_result(result)
-    print(jump / total)
+    print(rand_jump / total, brute_jump / total, it_jump / total)
 # Remind to talk about twitter app..

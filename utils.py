@@ -16,7 +16,9 @@ class Network(BaseModel):
 
 class IterativeJump(BaseModel):
     moved_pages: list[str]
-    cross_node_jump: int
+    rand_cross_node_jump: int
+    brute_force_cross_node_jump: int
+    it_cross_node_jump: int
     total_jump_this_iter: int
 
 
@@ -25,9 +27,9 @@ class SchedulingEstimation(BaseModel):
     walker_count: int = 0
     avg_page_size: float = 0
     total_jump_count: int = 0
-    rand_sched_jump: int = 0
-    brute_force_rand_jump: int = 0
-    greedy_best_jump: int = 0
+    # rand_sched_jump: int = 0
+    # brute_force_rand_jump: int = 0
+    # greedy_best_jump: int = 0
     iterative_adjust_jump: list[IterativeJump] = []
 
 

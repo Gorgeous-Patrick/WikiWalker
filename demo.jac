@@ -1,9 +1,9 @@
-node  Page {
+node Page {
   text: string = "Wikipedia Page Text for Jac";
   title: string = "Jac";
 }
 
-edge  HyperLink {
+edge HyperLink {
   rank: float;
   title: str;
 }
@@ -15,7 +15,7 @@ walker  WikiWalker on Page { # <-- Running on DPU, All data in Page is loaded on
     # 1. Load the text from page
     text = here.text;
     # 2. Accumulate the LSTM
-    embedding =  lstm.calculate(text); # <-- Calculates the LSTM embedding of the text
+    embedding =  self.lstm.calculate(text); # <-- Calculates the LSTM embedding of the text
     self.accumulated += embedding;
     # 3. Get the hyperlinks
     possible = [-:HyperLink:->];
