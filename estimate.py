@@ -65,54 +65,6 @@ def count_edge(paths: list[list[str]]):
     return count
 
 
-def sorted_best(paths: list[list[str]]):
-    # Get the edge counts using count_edge function
-    edge_counts = count_edge(paths)
-
-    # Sort edges by frequency (descending order)
-    sorted_edges = sorted(edge_counts.items(), key=lambda x: -x[1])
-
-    # Track the allocation of pages to PIM nodes
-    pim_nodes = []
-    page_to_pim = {}
-
-    # Allocate pages to PIM nodes
-    for edge, _ in sorted_edges:
-        page1, page2 = edge
-
-        # Check if page1 is already assigned
-        if page1 not in page_to_pim:
-            assigned = False
-            for pim_node in pim_nodes:
-                if len(pim_node.scheduled_pages) < PAGES_PER_NODE:
-                    pim_node.scheduled_pages.add(page1)
-                    page_to_pim[page1] = pim_node
-                    assigned = True
-                    break
-            if not assigned:
-                new_pim_node = PIMNode()
-                new_pim_node.scheduled_pages.add(page1)
-                pim_nodes.append(new_pim_node)
-                page_to_pim[page1] = new_pim_node
-
-        # Check if page2 is already assigned
-        if page2 not in page_to_pim:
-            assigned = False
-            for pim_node in pim_nodes:
-                if len(pim_node.scheduled_pages) < PAGES_PER_NODE:
-                    pim_node.scheduled_pages.add(page2)
-                    page_to_pim[page2] = pim_node
-                    assigned = True
-                    break
-            if not assigned:
-                new_pim_node = PIMNode()
-                new_pim_node.scheduled_pages.add(page2)
-                pim_nodes.append(new_pim_node)
-                page_to_pim[page2] = new_pim_node
-
-    return pim_nodes
-
-
 # A brute force scheduler algorithm. Start with a random scheduling and try all possible permutations of the scheduling.
 def brute_force_random(paths: list[list[str]]):
     pages = []
@@ -168,7 +120,7 @@ def greedy_best(paths: list[list[str]]):
     best_cross_node_jump = estimate_sched(paths, nodes)
     best_sched = nodes
     # Every time we swap two pages, we check if the number of cross-node jumps is reduced.
-    for i in range(20000):
+    for i in range(2):
         # Randomly choose two different pages
         page1 = random.choice(pages)
         page2 = random.choice(pages)
@@ -288,14 +240,6 @@ def compare_schedules(sched: list[PIMNode], new_sched: list[PIMNode]):
     return moved_pages
 
 
-# for i in range(10):
-#   new_env = os.environ.copy()
-#   new_env["SEED"] = str(i)
-#   subprocess.run(["jac", "run", "wikiwalker.jac"], env=new_env)
-#   result = []
-#   with open("single_result.json", "r") as f:
-#     result.append(json.load(f))
-#   print(result)
 
 random.seed(0)
 paths = []
@@ -307,24 +251,16 @@ for file_name in run_path.iterdir():
     # print(rand_sched(result))
 print(avg_page_size(paths))
 result = SchedulingEstimation(paths=paths, avg_page_size=avg_page_size(paths))
-# result.rand_sched_jump = estimate_sched(paths, rand_sched(paths))
-# result.brute_force_rand_jump = estimate_sched(paths, brute_force_random(paths))
+print("Random scheduler")
 rand_sched_res = rand_sched(paths)
+print("Brute force scheduler")
 brute_force_sched = brute_force_random(paths)
-# result.greedy_best_jump = estimate_sched(paths, greedy_best(paths))
-save_result(result)
-# result.iterative_adjust_jump = []
-# print(estimate_sched(paths, rand_sched(paths)))
-# print(estimate_sched(paths, sorted_best(paths)))
-# print(estimate_sched(paths, brute_force_random(paths)))
-# print(estimate_sched(paths, greedy_best(paths)))
 
-print("Iterate")
 print("Number of walkers:", len(paths))
 step = 100
 sched = rand_sched(paths)
 for i in range(step, len(paths), step):
-    new_sched = adjust_sched(paths[:i], copy.deepcopy(sched))
+    new_sched = adjust_sched(paths[:i - step], copy.deepcopy(sched))
     moved_pages = compare_schedules(sched, new_sched)
     print("Moved pages:", len(moved_pages))
     # if len(moved_pages) > 0:
