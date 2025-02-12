@@ -7,6 +7,8 @@ import json
 import matplotlib.pyplot as plt
 import sys
 
+model = [0] * 3000
+
 class AccessCounter:
     accesses = []
     @classmethod
@@ -57,6 +59,8 @@ def lstm_embedding(text):
     # For demonstration, we'll return a random vector
     for i in text:
         AccessCounter.add_access(i)
+    for param in model:
+        AccessCounter.add_access(param)
     
     return np.random.rand(128)
 
@@ -74,7 +78,7 @@ def process_wikipedia_network(storage):
     while current_page:
         print(f"Processing page: {current_page}")
         # page_content = wikipedia.page(current_page).content
-        page_content = "This is a placeholder for the page content."
+        page_content = "T" * 1000
         embedding = lstm_embedding(page_content)
         print(f"Generated embedding of shape: {embedding.shape}")
 
@@ -129,18 +133,23 @@ if __name__ == "__main__":
 
 
     # Sample memory addresses list (replace with your actual data)
-    memory_accesses = AccessCounter.accesses[:2000]  # List of memory addresses touched
+    memory_accesses = AccessCounter.accesses  # List of memory addresses touched
     timestamps = np.arange(len(memory_accesses))  # Simulated time steps
 
     # Normalize memory addresses for better visualization
-    min_addr, max_addr = min(memory_accesses), max(memory_accesses)
+    # min_addr, max_addr = min(memory_accesses), max(memory_accesses)
     # normalized_addresses = [(addr - min_addr) / (max_addr - min_addr + 1) for addr in memory_accesses]
 
     # Scatter plot
     plt.figure(figsize=(10, 5))
     plt.scatter(timestamps, memory_accesses, alpha=0.6, s=10, c="blue")
     plt.xlabel("Time")
-    plt.ylabel("Normalized Memory Address")
+    plt.ylabel("Memory Address")
+    # Do not use scientific notation for large numbers
+    plt.ticklabel_format(style='plain', axis='y')
+    # Use hex format for memory addresses
+    plt.gca().yaxis.set_major_formatter(plt.FuncFormatter(lambda x, _: hex(int(x))))
     plt.title("Memory Access Pattern Over Time")
+    print(hex(id(model[0])))
     plt.show()
 
